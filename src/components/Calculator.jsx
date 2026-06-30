@@ -57,7 +57,7 @@ const Calculator = () => {
   return (
     <div className="calculator">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)' }}>Calculadora SaaS</h2>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)' }}>Calculadora</h2>
         <button 
           className="history-toggle" 
           onClick={() => setShowHistory(!showHistory)}

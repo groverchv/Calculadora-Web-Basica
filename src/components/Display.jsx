@@ -24,13 +24,14 @@ const Display = ({ currentValue, previousValue, operation }) => {
   return (
     <div className="display">
       <div className="display-previous">
-        {previousValue} {operation}
+        <span>{previousValue || ''}</span>
+        {operation && <span> {operation}</span>}
       </div>
       <div 
         className="display-current" 
         style={{ fontSize: getFontSize(formattedValue) }}
       >
-        {formattedValue}
+        <span>{formattedValue}</span>
       </div>
     </div>
   );

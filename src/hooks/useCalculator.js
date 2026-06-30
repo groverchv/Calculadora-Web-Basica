@@ -1,5 +1,5 @@
 import { useReducer, useEffect } from 'react';
-import { calculate } from '../utils/calculatorLogic';
+import { evaluateExpression } from '../utils/calculatorLogic';
 
 /**
  * Acciones soportadas por el reductor de la calculadora.
@@ -12,11 +12,11 @@ export const ACTIONS = {
   DELETE_DIGIT: 'delete-digit',
   EVALUATE: 'evaluate',
   TOGGLE_SIGN: 'toggle-sign',
-  SET_STATE: 'set-state', // Para hidratar desde LocalStorage
+  SET_STATE: 'set-state',
 };
 
 /**
- * Reductor que gestiona las transiciones de estado de la calculadora.
+ * Reductor que gestiona las transiciones de estado de la calculadora de expresión libre.
  * @param {Object} state - Estado actual de la calculadora.
  * @param {Object} action - Acción enviada al reductor.
  * @param {string} action.type - Tipo de acción.
@@ -26,125 +26,61 @@ export const ACTIONS = {
 const reducer = (state, { type, payload }) => {
   switch (type) {
     case ACTIONS.ADD_DIGIT:
-      if (state.currentValue === 'Error') {
-        return {
-          ...state,
-          currentValue: payload.digit,
-        };
-      }
-      
-      if (state.overwrite) {
+      if (state.currentValue === 'Error' || state.overwrite) {
         return {
           ...state,
           currentValue: payload.digit,
           overwrite: false,
         };
       }
-      
-      if (payload.digit === '0' && state.currentValue === '0') {
-        return state;
-      }
-      
-      if (payload.digit === '.' && state.currentValue?.includes('.')) {
-        return state;
-      }
-      
       return {
         ...state,
         currentValue: `${state.currentValue || ''}${payload.digit}`,
       };
 
     case ACTIONS.CHOOSE_OPERATION:
-      if (state.currentValue == null && state.previousValue == null) {
-        return state;
-      }
-      
-      if (state.currentValue === 'Error') {
-        return state;
-      }
-
-      if (state.currentValue == null) {
+      if (state.currentValue === 'Error' || state.overwrite) {
         return {
           ...state,
-          operation: payload.operation,
+          currentValue: payload.operation,
+          overwrite: false,
         };
       }
-
-      if (state.previousValue == null) {
-        return {
-          ...state,
-          operation: payload.operation,
-          previousValue: state.currentValue,
-          currentValue: null,
-        };
-      }
-
-      const computation = calculate(state.previousValue, state.currentValue, state.operation);
-      if (computation === 'Error') {
-        return {
-          ...state,
-          previousValue: null,
-          operation: null,
-          currentValue: 'Error',
-          overwrite: true,
-        };
-      }
-
       return {
         ...state,
-        previousValue: computation,
-        operation: payload.operation,
-        currentValue: null,
+        currentValue: `${state.currentValue || ''}${payload.operation}`,
       };
 
     case ACTIONS.CLEAR:
       return {
-        currentValue: null,
-        previousValue: null,
-        operation: null,
+        currentValue: '',
         overwrite: false,
         history: [],
       };
 
     case ACTIONS.DELETE_DIGIT:
-      if (state.overwrite) {
+      if (state.overwrite || state.currentValue === 'Error') {
         return {
           ...state,
           overwrite: false,
-          currentValue: null,
+          currentValue: '',
         };
       }
-      if (state.currentValue == null) return state;
-      if (state.currentValue === 'Error') {
-        return {
-          ...state,
-          currentValue: null,
-        };
-      }
-      if (state.currentValue.length === 1) {
-        return { ...state, currentValue: null };
-      }
-
+      if (!state.currentValue) return state;
       return {
         ...state,
         currentValue: state.currentValue.slice(0, -1),
       };
 
     case ACTIONS.EVALUATE:
-      if (
-        state.operation == null ||
-        state.currentValue == null ||
-        state.previousValue == null
-      ) {
-        return state;
-      }
-
-      const result = calculate(state.previousValue, state.currentValue, state.operation);
+      if (!state.currentValue) return state;
       
-      const equation = `${state.previousValue} ${state.operation} ${state.currentValue} =`;
+      const result = evaluateExpression(state.currentValue);
+      if (result === '') return state;
+      
       const newHistory = [...(state.history || [])];
       if (result !== 'Error') {
-        newHistory.push({ equation, result });
+        newHistory.push({ equation: `${state.currentValue} =`, result });
         if (newHistory.length > 5) {
           newHistory.shift();
         }
@@ -153,21 +89,36 @@ const reducer = (state, { type, payload }) => {
       return {
         ...state,
         overwrite: true,
-        previousValue: null,
-        operation: null,
         currentValue: result,
         history: newHistory,
       };
 
     case ACTIONS.TOGGLE_SIGN:
-      if (state.currentValue == null || state.currentValue === 'Error') {
-        return state;
+      if (!state.currentValue || state.currentValue === 'Error') {
+        return {
+          ...state,
+          currentValue: '-',
+        };
+      }
+      if (state.currentValue === '-') {
+        return {
+          ...state,
+          currentValue: '',
+        };
       }
       
-      const toggled = (parseFloat(state.currentValue) * -1).toString();
+      const parsedNum = Number(state.currentValue);
+      if (!isNaN(parsedNum)) {
+        return {
+          ...state,
+          currentValue: (parsedNum * -1).toString(),
+        };
+      }
+      
+      // Para expresiones complejas, añadir '-'
       return {
         ...state,
-        currentValue: toggled,
+        currentValue: `${state.currentValue}-`,
       };
 
     case ACTIONS.SET_STATE:
@@ -186,16 +137,14 @@ const reducer = (state, { type, payload }) => {
  * @type {Object}
  */
 const initialState = {
-  currentValue: null,
-  previousValue: null,
-  operation: null,
+  currentValue: '',
   overwrite: false,
   history: [],
 };
 
 /**
- * Hook personalizado para manejar el estado de la calculadora.
- * Implementa persistencia automática del estado y del historial en LocalStorage.
+ * Hook personalizado para manejar el estado de la calculadora de forma libre.
+ * Implementa persistencia automática en LocalStorage.
  * 
  * @returns {[Object, function]} El estado de la calculadora y la función dispatch.
  */

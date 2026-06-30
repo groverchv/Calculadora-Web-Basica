@@ -13,7 +13,7 @@ const Calculator = () => {
   const [state, dispatch] = useCalculator();
   const [showHistory, setShowHistory] = useState(false);
 
-  const { currentValue, previousValue, operation, history } = state;
+  const { currentValue, history } = state;
 
   useEffect(() => {
     /**
@@ -87,8 +87,6 @@ const Calculator = () => {
 
       <Display 
         currentValue={currentValue} 
-        previousValue={previousValue} 
-        operation={operation} 
       />
 
       <div className="buttons-grid">

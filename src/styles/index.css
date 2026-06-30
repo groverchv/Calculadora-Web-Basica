@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-calculator: #FFFFFF;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+  --color-brand: #2563EB;
+  --color-brand-hover: #1D4ED8;
+  --color-brand-active: #1E40AF;
+  --btn-num-bg: #FFFFFF;
+  --btn-num-hover: #F9FAFB;
+  --btn-num-active: #F3F4F6;
+  --btn-op-bg: #F3F4F6;
+  --btn-op-hover: #E5E7EB;
+  --btn-op-text: #2563EB;
+  --btn-action-text: #EF4444;
+  --shadow-btn: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-calculator);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+  width: 100vw;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Contenedor de la aplicación a pantalla completa */
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* Estructura de la Calculadora a pantalla completa */
+.calculator {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-calculator);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Pantalla del Display auto-expandible */
+.display {
+  background-color: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  flex: 1; /* Ocupa el espacio restante superior */
+  min-height: 120px;
+  word-wrap: break-word;
+  word-break: break-all;
+  transition: all 0.2s ease;
+}
+
+.display-previous {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+
+.display-current {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-top: 8px;
+  transition: font-size 0.15s ease-out;
+  text-align: right;
+  width: 100%;
+}
+
+/* Historial */
+.history-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.history-toggle:hover {
+  background-color: #F3F4F6;
+}
+
+.history-panel {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid #F3F4F6;
+  padding-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.history-item:hover {
+  background-color: #F9FAFB;
+}
+
+/* Grilla de Botones auto-expandible */
+.buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr); /* 5 filas proporcionales */
+  gap: 12px;
+  flex: 2.5; /* Ocupa la mayor parte del alto de la pantalla */
+}
+
+/* Botón Genérico */
+.btn {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 500;
+  border-radius: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-btn);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+  height: 100%; /* Ocupa el 100% de la celda de la cuadrícula */
+}
+
+/* Tipos de Botones */
+.btn-num {
+  background-color: var(--btn-num-bg);
+  color: var(--text-primary);
+  border: 1px solid #E5E7EB;
+}
+
+.btn-num:hover {
+  background-color: var(--btn-num-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-num:active {
+  background-color: var(--btn-num-active);
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-op {
+  background-color: var(--btn-op-bg);
+  color: var(--btn-op-text);
+  font-weight: 600;
+}
+
+.btn-op:hover {
+  background-color: var(--btn-op-hover);
+  transform: translateY(-2px);
+}
+
+.btn-op:active {
+  transform: translateY(1px);
+}
+
+.btn-action {
+  background-color: var(--btn-op-bg);
+  color: var(--btn-action-text);
+  font-weight: 600;
+}
+
+.btn-action:hover {
+  background-color: #FEE2E2;
+  transform: translateY(-2px);
+}
+
+.btn-action:active {
+  transform: translateY(1px);
+}
+
+.btn-equals {
+  background-color: var(--color-brand);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.btn-equals:hover {
+  background-color: var(--color-brand-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3);
+}
+
+.btn-equals:active {
+  background-color: var(--color-brand-active);
+  transform: translateY(1px);
+}
+
+/* Ajustes finos de fuentes en displays */
+@media (max-height: 600px) {
+  .display-current {
+    font-size: 2.2rem;
+  }
+  .btn {
+    font-size: 1.2rem;
+  }
+}
+
+/* Efectos de foco accesibles */
+.btn:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
